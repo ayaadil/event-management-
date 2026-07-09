@@ -1,1 +1,57 @@
-GET http://localhost:3000
+@baseUrl = http://localhost:5000/api
+
+### 1. Register - User
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Sami User",
+  "email": "sami.user@example.com",
+  "password": "123456",
+  "role": "user"
+}
+
+### 2. Register - Organizer
+POST {{baseUrl}}/auth/register
+Content-Type: application/json
+
+{
+  "name": "Sami Organizer",
+  "email": "sami.organizer@example.com",
+  "password": "123456",
+  "role": "organizer"
+}
+
+### 3. Login
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "sami.organizer@example.com",
+  "password": "123456"
+}
+
+### 4. Get current user (me)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{login.response.body.token}}
+
+### 5. Update profile
+PUT {{baseUrl}}/users/me
+Authorization: Bearer {{login.response.body.token}}
+Content-Type: application/json
+
+{
+  "name": "Saman Omer"
+}
+
+### 6. Get all users
+GET {{baseUrl}}/users
+Authorization: Bearer {{login.response.body.token}}
+
+### 7. Delete user
+DELETE {{baseUrl}}/users/1
+Authorization: Bearer {{login.response.body.token}}
+
+### 8. Health check
+GET http://localhost:5000
