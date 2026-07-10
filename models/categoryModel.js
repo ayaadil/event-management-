@@ -1,0 +1,42 @@
+const pool = require('../config/db');
+
+const Category = {
+  async create({ name, icon_url }) {
+    const [result] = await pool.query(
+      'INSERT INTO categories (name, icon_url) VALUES (?, ?)',
+      [name, icon_url || null]
+    );
+    return { id: result.insertId, name, icon_url: icon_url || null };
+  },
+
+  async findByName(name) {
+    const [rows] = await pool.query('SELECT * FROM categories WHERE name = ?', [name]);
+    return rows[0] || null;
+  },
+
+  async findAll() {
+    const [rows] = await pool.query('SELECT * FROM categories ORDER BY name ASC');
+    return rows;
+  },
+
+  async findById(id) {
+    const [rows] = await pool.query('SELECT * FROM categories WHERE id = ?', [id]);
+    return rows[0] || null;
+  },
+
+  async update(id, { name, icon_url }) {
+    await pool.query('UPDATE categories SET name = ?, icon_url = ? WHERE id = ?', [
+      name,
+      icon_url,
+      id,
+    ]);
+    return this.findById(id);
+  },
+
+  async remove(id) {
+    const [result] = await pool.query('DELETE FROM categories WHERE id = ?', [id]);
+    return result.affectedRows > 0;
+  },
+};
+
+module.exports = Category;
