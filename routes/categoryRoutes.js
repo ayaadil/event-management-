@@ -13,9 +13,9 @@ const { protect, authorize } = require('../middlewares/authMiddleware');
 router.get('/', getCategories);
 router.get('/:id', getCategoryById);
 
-// Only organizers/admins can manage categories
-router.post('/', protect, authorize('organizer', 'admin'), createCategory);
-router.put('/:id', protect, authorize('organizer', 'admin'), updateCategory);
-router.delete('/:id', protect, authorize('organizer', 'admin'), deleteCategory);
+// Only admins can manage categories (shared/global data across all events)
+router.post('/', protect, authorize('admin'), createCategory);
+router.put('/:id', protect, authorize('admin'), updateCategory);
+router.delete('/:id', protect, authorize('admin'), deleteCategory);
 
 module.exports = router;

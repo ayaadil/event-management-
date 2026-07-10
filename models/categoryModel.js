@@ -25,9 +25,12 @@ const Category = {
   },
 
   async update(id, { name, icon_url }) {
+    const existing = await this.findById(id);
+    if (!existing) return null;
+
     await pool.query('UPDATE categories SET name = ?, icon_url = ? WHERE id = ?', [
-      name,
-      icon_url,
+      name ?? existing.name,
+      icon_url ?? existing.icon_url,
       id,
     ]);
     return this.findById(id);

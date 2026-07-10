@@ -42,7 +42,8 @@ exports.createEvent = async (req, res) => {
 
     return res.status(201).json(event);
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to create event', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to create event' });
   }
 };
 
@@ -71,7 +72,8 @@ exports.getEvents = async (req, res) => {
       events: rows,
     });
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to fetch events', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to fetch events' });
   }
 };
 
@@ -84,7 +86,8 @@ exports.getEventById = async (req, res) => {
     }
     return res.status(200).json(event);
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to fetch event', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to fetch event' });
   }
 };
 
@@ -123,24 +126,25 @@ exports.updateEvent = async (req, res) => {
     }
 
     const updated = await Event.update(req.params.id, {
-      title,
-      description,
-      image_url,
-      date_time,
-      location,
-      latitude,
-      longitude,
-      category_id,
-      status,
+      title: title ?? event.title,
+      description: description ?? event.description,
+      image_url: image_url ?? event.image_url,
+      date_time: date_time ?? event.date_time,
+      location: location ?? event.location,
+      latitude: latitude ?? event.latitude,
+      longitude: longitude ?? event.longitude,
+      category_id: category_id ?? event.category_id,
+      status: status ?? event.status,
     });
 
     return res.status(200).json(updated);
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to update event', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to update event' });
   }
 };
 
-// DELETE /events/:id  (organizer who owns the event, or admin) - soft delete
+// DELETE /events/:id  (organizer who owns the event, or admin)
 exports.deleteEvent = async (req, res) => {
   try {
     const event = await Event.findById(req.params.id);
@@ -158,6 +162,7 @@ exports.deleteEvent = async (req, res) => {
     await Event.remove(req.params.id);
     return res.status(200).json({ message: 'Event deleted successfully' });
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to delete event', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to delete event' });
   }
 };

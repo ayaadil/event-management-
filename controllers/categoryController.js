@@ -17,7 +17,8 @@ exports.createCategory = async (req, res) => {
     const category = await Category.create({ name, icon_url });
     return res.status(201).json(category);
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to create category', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to create category' });
   }
 };
 
@@ -27,7 +28,8 @@ exports.getCategories = async (req, res) => {
     const categories = await Category.findAll();
     return res.status(200).json(categories);
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to fetch categories', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to fetch categories' });
   }
 };
 
@@ -40,7 +42,8 @@ exports.getCategoryById = async (req, res) => {
     }
     return res.status(200).json(category);
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to fetch category', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to fetch category' });
   }
 };
 
@@ -61,7 +64,8 @@ exports.updateCategory = async (req, res) => {
 
     return res.status(200).json(updated);
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to update category', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to update category' });
   }
 };
 
@@ -76,6 +80,7 @@ exports.deleteCategory = async (req, res) => {
     await Category.remove(req.params.id);
     return res.status(200).json({ message: 'Category deleted successfully' });
   } catch (err) {
-    return res.status(500).json({ message: 'Failed to delete category', error: err.message });
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to delete category' });
   }
 };

@@ -129,7 +129,6 @@ const Event = {
     return this.findById(id);
   },
 
-  // Soft delete - schema has deleted_at for this purpose
   async remove(id) {
     const [result] = await pool.query(
       'UPDATE events SET deleted_at = NOW() WHERE id = ? AND deleted_at IS NULL',
