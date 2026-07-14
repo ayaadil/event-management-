@@ -1,1 +1,130 @@
-GET http://localhost:3000
+@baseUrl = http://localhost:3000
+
+###############################################
+# AUTH
+###############################################
+
+### Register organizer
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Test Organizer",
+  "email": "organizer1@test.com",
+  "password": "123456",
+  "role": "organizer"
+}
+
+### Register admin
+POST {{baseUrl}}/api/auth/register
+Content-Type: application/json
+
+{
+  "name": "Admin User",
+  "email": "admin1@test.com",
+  "password": "123456",
+  "role": "admin"
+}
+
+### Login as organizer
+# @name loginOrganizer
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "organizer1@test.com",
+  "password": "123456"
+}
+
+### Login as admin
+# @name loginAdmin
+POST {{baseUrl}}/api/auth/login
+Content-Type: application/json
+
+{
+  "email": "admin1@test.com",
+  "password": "123456"
+}
+
+### Get current user (me)
+GET {{baseUrl}}/api/auth/me
+Authorization: Bearer {{loginOrganizer.response.body.token}}
+
+
+###############################################
+# CATEGORIES
+###############################################
+
+### Get all categories
+GET {{baseUrl}}/api/categories
+
+### Get category by id
+GET {{baseUrl}}/api/categories/1
+
+### Create category
+POST {{baseUrl}}/api/categories
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "Music",
+  "icon_url": "https://example.com/icons/music.png"
+}
+
+### Update category
+PUT {{baseUrl}}/api/categories/1
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "Sports & Fitness"
+}
+
+### Delete category
+DELETE {{baseUrl}}/api/categories/1
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+
+###############################################
+# EVENTS
+###############################################
+
+### Get all events
+GET {{baseUrl}}/api/events?page=1&limit=10
+
+### Get events with filters
+GET {{baseUrl}}/api/events?category=1&search=music&from=2026-01-01&to=2026-12-31
+
+### Get event by id
+GET {{baseUrl}}/api/events/1
+
+### Create event
+POST {{baseUrl}}/api/events
+Content-Type: application/json
+Authorization: Bearer {{loginOrganizer.response.body.token}}
+
+{
+  "title": "Tech Conference 2026",
+  "description": "Annual tech conference",
+  "image_url": "https://example.com/event.jpg",
+  "date_time": "2026-09-15T10:00:00",
+  "location": "Amman, Jordan",
+  "latitude": 31.9539,
+  "longitude": 35.9106,
+  "category_id": 1,
+  "status": "published"
+}
+
+### Update event
+PUT {{baseUrl}}/api/events/1
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "title": "Tech Conference 2026 - Updated",
+  "status": "published"
+}
+
+### Delete event
+DELETE {{baseUrl}}/api/events/1
+Authorization: Bearer {{loginOrganizer.response.body.token}}
