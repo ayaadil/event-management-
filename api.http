@@ -1,10 +1,22 @@
+// Note: You may see warnings in the "Problems" tab like
+// "Request 'loginOrganizer' has not been sent" when you first open this file.
+// This is normal and not an error - it disappears automatically once you
+// send the two Login requests below.
+//
+// ============================================================
+// EVERY TIME YOU OPEN THIS FILE:
+// 1. Make sure the server is running (npm run dev)
+// 2. Click "Send Request" on BOTH "Login as organizer" AND "Login as admin"
+// 3. Then use any request below - the token is grabbed automatically
+// ============================================================
+
 @baseUrl = http://localhost:3000
 
 ###############################################
 # AUTH
 ###############################################
 
-### Register organizer
+### Register organizer (run once only)
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
@@ -15,7 +27,7 @@ Content-Type: application/json
   "role": "organizer"
 }
 
-### Register admin
+### Register admin (run once only)
 POST {{baseUrl}}/api/auth/register
 Content-Type: application/json
 
@@ -26,7 +38,7 @@ Content-Type: application/json
   "role": "admin"
 }
 
-### Login as organizer
+### ⭐ Login as organizer - RUN THIS EVERY SESSION
 # @name loginOrganizer
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
@@ -36,7 +48,7 @@ Content-Type: application/json
   "password": "123456"
 }
 
-### Login as admin
+### ⭐ Login as admin - RUN THIS EVERY SESSION
 # @name loginAdmin
 POST {{baseUrl}}/api/auth/login
 Content-Type: application/json
@@ -52,7 +64,7 @@ Authorization: Bearer {{loginOrganizer.response.body.token}}
 
 
 ###############################################
-# CATEGORIES
+# CATEGORIES (admin only for write operations)
 ###############################################
 
 ### Get all categories
@@ -67,8 +79,8 @@ Content-Type: application/json
 Authorization: Bearer {{loginAdmin.response.body.token}}
 
 {
-  "name": "Music",
-  "icon_url": "https://example.com/icons/music.png"
+  "name": "Sports",
+  "icon_url": "https://example.com/icons/sports.png"
 }
 
 ### Update category
@@ -86,7 +98,7 @@ Authorization: Bearer {{loginAdmin.response.body.token}}
 
 
 ###############################################
-# EVENTS
+# EVENTS (organizer/admin for write, owner-only for update/delete)
 ###############################################
 
 ### Get all events
@@ -118,7 +130,7 @@ Authorization: Bearer {{loginOrganizer.response.body.token}}
 ### Update event
 PUT {{baseUrl}}/api/events/1
 Content-Type: application/json
-Authorization: Bearer {{loginAdmin.response.body.token}}
+Authorization: Bearer {{loginOrganizer.response.body.token}}
 
 {
   "title": "Tech Conference 2026 - Updated",
