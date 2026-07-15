@@ -57,7 +57,7 @@ Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 6b. Get all users
 GET {{baseUrl}}/users
-Authorization: Bearer {{loginOrganizer.response.body.token}}
+Authorization: 
 
 ### 7. Delete user
 DELETE {{baseUrl}}/users/1
