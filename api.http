@@ -7,8 +7,7 @@ Content-Type: application/json
 {
   "name": "Sami User",
   "email": "sami.user@example.com",
-  "password": "123456",
-  "role": "user"
+  "password": "123456"
 }
 
 ### 2. Register - Organizer
@@ -18,12 +17,11 @@ Content-Type: application/json
 {
   "name": "Sami Organizer",
   "email": "sami.organizer@example.com",
-  "password": "123456",
-  "role": "organizer"
+  "password": "123456"
 }
 
 ### 3. Login
-# @name login
+# @name loginOrganizer
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
@@ -31,27 +29,39 @@ Content-Type: application/json
   "email": "sami.organizer@example.com",
   "password": "123456"
 }
-
-### 4. Get current user (me)
-GET {{baseUrl}}/auth/me
-Authorization: Bearer {{login.response.body.token}}
-
-### 5. Update profile
-PUT {{baseUrl}}/users/me
-Authorization: Bearer {{login.response.body.token}}
+### 3d. Regular user login
+# @name loginUser
+POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "name": "Saman Omer"
+  "email": "sami.user@example.com",
+  "password": "123456"
+}
+### 4. Get current user (me)
+GET {{baseUrl}}/auth/me
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### 5. Update profile
+PUT {{baseUrl}}/users/me
+Authorization: Bearer {{loginUser.response.body.token}}
+Content-Type: application/json
+
+{
+  "name": "Saman Ali"
 }
 
 ### 6. Get all users
 GET {{baseUrl}}/users
-Authorization: Bearer {{login.response.body.token}}
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### 6b. Get all users
+GET {{baseUrl}}/users
+Authorization: Bearer {{loginOrganizer.response.body.token}}
 
 ### 7. Delete user
 DELETE {{baseUrl}}/users/1
-Authorization: Bearer {{login.response.body.token}}
+Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 8. Health check
 GET http://localhost:5000

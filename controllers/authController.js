@@ -12,7 +12,7 @@ const generateToken = (user) => {
 
 const register = async (req, res, next) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password} = req.body;
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'Please fill in all fields' });
@@ -28,11 +28,12 @@ const register = async (req, res, next) => {
       name,
       email,
       password: hashedPassword,
-      role: role || 'user',
+      role: 'user',
     });
 
     const user = await UserModel.findById(userId);
     const token = generateToken(user);
+    delete user.password; 
 
     res.status(201).json({ message: 'User registered successfully', user, token });
   } catch (err) {
@@ -71,7 +72,7 @@ const getMe = async (req, res, next) => {
   try {
     const user = await UserModel.findById(req.user.id);
     if (!user) {
-      return res.status(404).json({ message: 'the User ont found' });
+      return res.status(404).json({ message: 'User not found' });
     }
     res.json(user);
   } catch (err) {

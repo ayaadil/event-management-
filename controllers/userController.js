@@ -15,9 +15,9 @@ const getUsersById = async(req, res, next) => {
         const user = await UserModel.findById(req.params.id);
         if (!user){
             return res.status(404).json({ message: 'The User not found.'});
+          }
         res.json(user);
-        }
-    }catch (err){
+        }catch (err){
         next(err);
     }
 };
@@ -47,8 +47,17 @@ const updateUser = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ message: 'The User not found.' });
     }
+    const {name, email, password, role} = req.body;
+    const fields = {};
+    if (name) fields.name = name;
+    if (email) fields.email = email;
+    if (password) fields.password = await bcrypt.hash(password, 10);
+    if (role) fields.role = role;
+    if (Object.keys(fields).length === 0) {
+      return res.status(400).json({ message: 'There is no data to update.' });
+    }
 
-    await UserModel.update(req.params.id, req.body);
+    await UserModel.update(req.params.id, fields);
     const updatedUser = await UserModel.findById(req.params.id);
     res.json({ message: 'Your data has been updated.', user: updatedUser });
   } catch (err) {
