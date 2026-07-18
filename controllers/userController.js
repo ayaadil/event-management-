@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModel');
+const Role = require('../constants/roles');
 
 const getUsers = async (req, res, next) => {
   try{
@@ -52,7 +53,12 @@ const updateUser = async (req, res, next) => {
     if (name) fields.name = name;
     if (email) fields.email = email;
     if (password) fields.password = await bcrypt.hash(password, 10);
-    if (role) fields.role = role;
+    if (role) {
+      if(!Object.values(Role).includes(role)) {
+        return res.status(400).json({ message: 'Invalid role value.' });
+      }
+      fields.role = role;
+    }
     if (Object.keys(fields).length === 0) {
       return res.status(400).json({ message: 'There is no data to update.' });
     }

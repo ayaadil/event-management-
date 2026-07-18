@@ -56,6 +56,13 @@ exports.updateCategory = async (req, res) => {
     if (!existing) {
       return res.status(404).json({ message: 'Category not found' });
     }
+//
+    if (name) {
+      const duplicate = await Category.findByName(name);
+      if (duplicate && duplicate.id !== existing.id) {
+        return res.status(409).json({ message: 'Category name already exists' });
+      }
+    }
 
     const updated = await Category.update(req.params.id, {
       name: name ?? existing.name,
@@ -81,6 +88,9 @@ exports.deleteCategory = async (req, res) => {
     return res.status(200).json({ message: 'Category deleted successfully' });
   } catch (err) {
     console.error(err);
+    if (err.statusCode === 409) {
+      return res.status(409).json({ message: err.message });
+    }
     return res.status(500).json({ message: 'Failed to delete category' });
   }
 };

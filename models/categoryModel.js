@@ -4,9 +4,9 @@ const Category = {
   async create({ name, icon_url }) {
     const [result] = await pool.query(
       'INSERT INTO categories (name, icon_url) VALUES (?, ?)',
-      [name, icon_url || null]
+      [name, icon_url ?? null]
     );
-    return { id: result.insertId, name, icon_url: icon_url || null };
+    return { id: result.insertId, name, icon_url: icon_url ?? null };
   },
 
   async findByName(name) {
@@ -35,10 +35,15 @@ const Category = {
     ]);
     return this.findById(id);
   },
-
+//
   async remove(id) {
-    const [result] = await pool.query('DELETE FROM categories WHERE id = ?', [id]);
-    return result.affectedRows > 0;
+    const [events] = await pool.query('SELECT id FROM events WHERE category_id = ?', [id]);
+    if (events.length > 0) {const error = new Error('Cannot delete category: it has associated events');
+      error.status = 400;
+      throw error;
+    }
+    const [deleteResult] = await pool.query('DELETE FROM categories WHERE id = ?', [id]);
+    return deleteResult.affectedRows > 0;
   },
 };
 

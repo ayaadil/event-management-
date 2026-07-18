@@ -1,7 +1,8 @@
 const db = require('../config/db');
+const Role = require('../constants/roles');
 
 const UserModel = {
-    async create({ name, email, password, role= 'user'}){
+    async create({ name, email, password, role = Role.USER }) {
         const [result] = await db.query(
             `INSERT INTO users(name,email, password, role) VALUES(?,?,?,?)`,
             [name,email,password,role]
@@ -19,7 +20,8 @@ const UserModel = {
     },
     async findAll(){
         const [rows] = await db.query(
-            `SELECT id, name, email, role, created_at FROM users WHERE deleted_at IS NULL ORDER BY created_at DESC`
+            `SELECT id, name, email, role, created_at FROM users WHERE deleted_at IS NULL
+             ORDER BY created_at DESC`
         );
         return rows;
     },

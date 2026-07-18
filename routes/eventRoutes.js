@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Role = require('../constants/roles');
 const {
   createEvent,
   getEvents,
@@ -15,8 +16,8 @@ router.get('/:id', getEventById);
 
 // Organizer-only write access (ownership is checked inside the controller
 // for update/delete so an organizer can't touch another organizer's event)
-router.post('/', protect, authorize('organizer', 'admin'), createEvent);
-router.put('/:id', protect, authorize('organizer', 'admin'), updateEvent);
-router.delete('/:id', protect, authorize('organizer', 'admin'), deleteEvent);
+router.post('/', protect, authorize(Role.ORGANIZER, Role.ADMIN), createEvent);
+router.put('/:id', protect, authorize(Role.ORGANIZER, Role.ADMIN), updateEvent);
+router.delete('/:id', protect, authorize(Role.ORGANIZER, Role.ADMIN), deleteEvent);
 
 module.exports = router;

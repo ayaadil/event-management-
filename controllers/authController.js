@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/userModel');
+const Role = require('../constants/roles');
 
 const generateToken = (user) => {
   return jwt.sign(
@@ -28,7 +29,7 @@ const register = async (req, res, next) => {
       name,
       email,
       password: hashedPassword,
-      role: 'user',
+      role: Role.USER,
     });
 
     const user = await UserModel.findById(userId);

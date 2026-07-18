@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Role = require('../constants/roles');
 const {
   createCategory,
   getCategories,
@@ -14,8 +15,8 @@ router.get('/', getCategories);
 router.get('/:id', getCategoryById);
 
 // Only admins can manage categories (shared/global data across all events)
-router.post('/', protect, authorize('admin'), createCategory);
-router.put('/:id', protect, authorize('admin'), updateCategory);
-router.delete('/:id', protect, authorize('admin'), deleteCategory);
+router.post('/', protect, authorize(Role.ADMIN), createCategory);
+router.put('/:id', protect, authorize(Role.ADMIN), updateCategory);
+router.delete('/:id', protect, authorize(Role.ADMIN), deleteCategory);
 
 module.exports = router;

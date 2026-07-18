@@ -1,5 +1,7 @@
 const Event = require('../models/eventModel');
 const Category = require('../models/categoryModel');
+const Role = require('../constants/roles');
+const EVENT_STATUS = ['draft', 'published', 'cancelled', 'completed'];
 
 // POST /events  (organizer only)
 exports.createEvent = async (req, res) => {
@@ -19,14 +21,15 @@ exports.createEvent = async (req, res) => {
     if (!title || !date_time) {
       return res.status(400).json({ message: 'title and date_time are required' });
     }
-
     if (category_id) {
       const categoryExists = await Category.findById(category_id);
       if (!categoryExists) {
         return res.status(400).json({ message: 'Invalid category' });
       }
     }
-
+    if (status && !EVENT_STATUS.includes(status)) {
+      return res.status(400).json({ message: 'Invalid event status' });
+    }
     const event = await Event.create({
       title,
       description,
@@ -100,7 +103,7 @@ exports.updateEvent = async (req, res) => {
     }
 
     const isOwner = event.organizer_id === req.user.id;
-    const isAdmin = req.user.role === 'admin';
+    const isAdmin = req.user.role === Role.ADMIN;
 
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: 'Not authorized to update this event' });
@@ -123,6 +126,9 @@ exports.updateEvent = async (req, res) => {
       if (!categoryExists) {
         return res.status(400).json({ message: 'Invalid category' });
       }
+    }
+    if (status && !EVENT_STATUS.includes(status)) {
+      return res.status(400).json({ message: 'Invalid event status' });
     }
 
     const updated = await Event.update(req.params.id, {
@@ -153,7 +159,7 @@ exports.deleteEvent = async (req, res) => {
     }
 
     const isOwner = event.organizer_id === req.user.id;
-    const isAdmin = req.user.role === 'admin';
+    const isAdmin = req.user.role === Role.ADMIN;
 
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ message: 'Not authorized to delete this event' });

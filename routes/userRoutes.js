@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const Role = require('../constants/roles');
 const {
   getUsers,
   getUsersById,
@@ -13,9 +14,9 @@ const { protect, authorize } = require('../middlewares/authMiddleware');
 router.put('/me', protect, updateMe);
 
 
-router.get('/', protect, authorize('admin'), getUsers);
-router.get('/:id', protect, authorize('admin'), getUsersById);
-router.put('/:id', protect, authorize('admin'), updateUser);
-router.delete('/:id', protect, authorize('admin'), deleteUser);
+router.get('/', protect, authorize(Role.ADMIN), getUsers);
+router.get('/:id', protect, authorize(Role.ADMIN), getUsersById);
+router.put('/:id', protect, authorize(Role.ADMIN), updateUser);
+router.delete('/:id', protect, authorize(Role.ADMIN), deleteUser);
 
 module.exports = router;

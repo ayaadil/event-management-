@@ -5,28 +5,28 @@ POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "name": "Sami User",
-  "email": "sami.user@example.com",
+  "name": "Ali omer",
+  "email": "sami.user3@example.com",
   "password": "123456"
 }
 
-### 2. Register - Organizer
+### 2. Register - Admin
 POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
   "name": "Sami Organizer",
-  "email": "sami.organizer@example.com",
+  "email": "sami.organizer1@example.com",
   "password": "123456"
 }
 
 ### 3. Login
-# @name loginOrganizer
+# @name loginAdmin
 POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "sami.organizer@example.com",
+  "email": "sami.organizer1@example.com",
   "password": "123456"
 }
 ### 3d. Regular user login
@@ -35,7 +35,7 @@ POST {{baseUrl}}/auth/login
 Content-Type: application/json
 
 {
-  "email": "sami.user@example.com",
+  "email": "sami.user3@example.com",
   "password": "123456"
 }
 ### 4. Get current user (me)
@@ -44,11 +44,11 @@ Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 5. Update profile
 PUT {{baseUrl}}/users/me
-Authorization: Bearer {{loginUser.response.body.token}}
+Authorization: Bearer {{loginAdmin.response.body.token}}
 Content-Type: application/json
 
 {
-  "name": "Saman Ali"
+  "name": "Saman omer"
 }
 
 ### 6. Get all users
@@ -57,11 +57,245 @@ Authorization: Bearer {{loginUser.response.body.token}}
 
 ### 6b. Get all users
 GET {{baseUrl}}/users
-Authorization: 
+Authorization: Bearer {{loginAdmin.response.body.token}} 
 
 ### 7. Delete user
-DELETE {{baseUrl}}/users/1
+DELETE {{baseUrl}}/users/2
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+####
+#catygories
+####
+
+### Get all categories
+GET {{baseUrl}}/categories
+
+### Get category by id
+GET {{baseUrl}}/categories/3
+
+### Create category
+POST {{baseUrl}}/categories
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "Food and Drinks",
+  "icon_url": "https://example.com/icons/sports.png"
+}
+
+### Update category
+PUT {{baseUrl}}/categories/14
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "reading and writing"
+}
+
+### Delete category
+DELETE {{baseUrl}}/categories/12
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+########
+#Events
+########
+
+### Get events with filters
+GET {{baseUrl}}/events?category=1&search=music&from=2026-01-01&to=2026-12-31
+
+### Get event by id
+GET {{baseUrl}}/events/1
+
+### Create event
+POST {{baseUrl}}/events
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "title": "Tech Conference 2026",
+  "description": "Annual tech conference",
+  "image_url": "https://example.com/event.jpg",
+  "date_time": "2026-09-15T10:00:00",
+  "location": "Amman, Jordan",
+  "latitude": 31.9539,
+  "longitude": 35.9106,
+  "category_id": 2,
+  "status": "published"
+}
+
+### Update event
+PUT {{baseUrl}}/events/2
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "title": "Updated Tech Conference 2026",
+  "status": "published"
+}
+
+### Delete event
+DELETE {{baseUrl}}/events/2
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+#########
+#Ticket Types
+#########
+
+### Create ticket type
+POST {{baseUrl}}/ticket-types
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "event_id": 1,
+  "ticket_name": "General Admission",
+  "price": 50.00,
+  "capacity": 100
+}
+
+### Get ticket types for a specific event
+GET {{baseUrl}}/ticket-types/event/1
 Authorization: Bearer {{loginUser.response.body.token}}
 
-### 8. Health check
+### Update ticket type(organizer/admin only)
+PUT {{baseUrl}}/ticket-types/1
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "ticket_name": "VIP Admission",
+  "price": 100.00
+}
+
+### Delete ticket type(organizer/admin only)
+DELETE {{baseUrl}}/ticket-types/1
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+#########
+#bookings
+#########
+
+### Create booking
+# @name createBooking
+POST {{baseUrl}}/bookings
+Authorization: Bearer {{loginUser.response.body.token}}
+Content-Type: application/json
+
+{
+  "ticket_type_id": 1,
+  "quantity": 2
+}
+
+### Get my bookings(logged in user)
+GET {{baseUrl}}/bookings/my
+Authorization: Bearer {{loginUser.response.body.token}}
+
+#### Get all bookings(admin only)
+GET {{baseUrl}}/bookings
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+### cancel booking
+PUT  {{baseUrl}}/bookings/1/cancel
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### QR code /chech-in
+
+### Get QR code for a confirmed booking
+GET {{baseUrl}}/bookings/1/qrcode
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### Verify ticket and register attendance (admin/staff only)
+POST {{baseUrl}}/bookings/verify
+Authorization: Bearer {{loginAdmin.response.body.token}}
+Content-Type: application/json
+
+{
+  "token": "PASTE_TOKEN_HERE"
+}
+
+### Try getting QR for booking thet is not confirmed yet(should return 400)
+GET {{baseUrl}}/bookings/2/qrcode
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### Try getting QR for someone else booking(should return 403)
+GET {{baseUrl}}/bookings/1/qrcode
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+#########
+#payment
+#########
+
+### create payment
+# @name createPayment
+POST {{baseUrl}}/payments 
+Authorization: Bearer {{loginUser.response.body.token}}
+Content-Type: application/json
+
+{
+  "booking_id": 1,
+  "amount": 100.00,
+  "payment_method": "credit_card"
+}
+
+### Verify booking status change to confirmed
+GET {{baseUrl}}/bookings/my
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### get payment by booking id
+GET {{baseUrl}}/payments/booking/1
+Authorization: Bearer {{loginUser.response.body.token}}
+
+
+#########
+#Saved events
+#########
+
+### Save event
+POST {{baseUrl}}/saved-events/1
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### Get my saved events
+GET {{baseUrl}}/saved-events/my
+Authorization: Bearer {{loginUser.response.body.token}}
+
+### Remove saved event
+DELETE {{baseUrl}}/saved-events/1
+Authorization: Bearer {{loginUser.response.body.token}}
+
+#########
+#Speakers
+#########
+
+#### Create speaker
+POST {{baseUrl}}/speakers
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "name": "Muhammed ali",
+  "role": "desginer",
+  "company": "web desgin",
+  "image_url": "https://example.com/speakers/khaled_al_masri.jpg"
+}
+
+#### Link speaker to event
+POST {{baseUrl}}/speakers/link
+Content-Type: application/json
+Authorization: Bearer {{loginAdmin.response.body.token}}
+
+{
+  "event_id": 1,
+  "speaker_id": 2
+}
+
+### Get all speakers
+GET {{baseUrl}}/speakers 
+
+### Get speaker by event id
+GET {{baseUrl}}/speakers/event/1
+Authorization: Bearer {{loginUser.response.body.token}}
+
+
+### Health check
 GET http://localhost:5000
