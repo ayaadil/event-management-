@@ -1,4 +1,5 @@
 const db = require('../config/db');
+const { findById } = require('./categoryModel');
 
 const TicketTypeModel = {
   async create({ event_id, ticket_name, price, capacity }) {
@@ -17,10 +18,11 @@ const TicketTypeModel = {
     );
     return rows;
   },
-
-  async findById(id) {
-    const [rows] = await db.query(`SELECT * FROM ticket_types WHERE id = ? AND deleted_at IS NULL`, [id]);
-    return rows[0];
+  async findById(id,connection = db){
+    const [rows] = await connection.query(
+      `SELECT * FROM ticket_types WHERE id = ? AND deleted_at IS NULL`,
+      [id]);
+      return rows[0];
   },
 
   // تنقيص عدد التذاكر المتاحة عند الحجز (بشكل آمن ضد race condition)
@@ -40,11 +42,7 @@ const TicketTypeModel = {
     );
     return true;
   },
-  async findById(id, connection = db) {
-    const [rows] = await connection.query(`SELECT * FROM ticket_types WHERE id = ?`, [id]);
-    return rows[0];
-  },
-
+  
   async update(id, fields) {
     const keys = Object.keys(fields);
     if (keys.length === 0) return false;

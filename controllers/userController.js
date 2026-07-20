@@ -1,6 +1,7 @@
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModel');
 const Role = require('../constants/roles');
+const { json } = require('express');
 
 const getUsers = async (req, res, next) => {
   try{
@@ -28,8 +29,14 @@ const updateMe = async (req, res, next) => {
         const fields = {};
 
         if(name) fields.name = name;
-        if(email) fields.email = email;
-        if(password) fields.password = await bcrypt.hash(password, 10);
+        if(email) {
+          const existing = await UserModel.findByEmail(email);
+          if (existing && existing.id !== req.user.id){
+            return res.status(409).json({message: 'Email is already in use'});
+          }
+           fields.email = email;
+        } 
+          if(password) fields.password = await bcrypt.hash(password, 10);
 
         if(Object.keys(fields).length === 0){
             return res.status(400).json({ message:'there is no data to update.'});

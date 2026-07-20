@@ -14,7 +14,7 @@ const { protect,authorize } = require('../middlewares/authMiddleware');
 router.post('/', protect, createBooking);
 router.get('/my', protect, getMyBookings);
 router.get('/', protect, authorize(Role.ADMIN), getAllBookings);
-router.post('/verify',protect, authorize(Role.ADMIN), verifyTicket);
+router.post('/verify',protect, verifyTicket);
 router.get('/:id/qrcode', protect,getBookingQRCode);
 router.put('/:id/cancel', protect, cancelBooking);
 

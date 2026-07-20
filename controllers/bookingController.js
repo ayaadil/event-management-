@@ -1,6 +1,7 @@
 const db = require("../config/db");
 const BookingModel = require("../models/bookingModel");
 const TicketTypeModel = require("../models/ticketTypeModel");
+const EventModel = ("../models/eventModel");
 const QRCode = require("qrcode");
 const jwt = require("jsonwebtoken");
 const Role = require('../constants/roles')
@@ -175,12 +176,18 @@ const getBookingQRCode = async (req, res, next) => {
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
-    if (Number(booking.user_id) !== Number(req.user.id) && req.user.role !== Role.ADMIN) {
-      return res.status(403).json({ message: "You are not allowed to perform this action" });
+    const event = await EventModel.findById(booking.event_id);
+    const isOwner = Number(booking.user_id) === Number(req.user.id);
+    const isAdmin = req.user.role === Role.ADMIN;
+    const isOrganizer = event && Number(event.isOrganizer_id) === Number(req.user.id);
+
+    if(!isOwner && !isAdmin && !isOrganizer){
+      return res.status(403).json({message: 'You are not alowed to preform this action'});
     }
-    if (booking.status !== "confirmed") {
-      return res.status(400).json({ message: "QR code can be issued for unconfirmed bookings" });
+    if (booking.status !== 'confirmed') {
+      return res.status(400).json({message: 'QR code can only by issues for confirmed bookings'});
     }
+
     const ticketToken = jwt.sign({ booking_id: booking.id, type:'ticket' },
        process.env.JWT_SECRET, { expiresIn: '10d' }
     );
@@ -201,21 +208,27 @@ const verifyTicket = async (req, res, next) => {
     const { token } = req.body;
 
     if (!token) {
-      return res.status(400).json({ message: "the code is required" });
+      return res.status(400).json({ message: "Token is required" });
     }
 
     let decoded;
     try {
       decoded = jwt.verify(token, process.env.JWT_SECRET);
     } catch (err) {
-      return res
-        .status(400)
-        .json({ message: "invalid or tampered with ticket" });
+      return res.status(400).json({ message: "invalid or tampered with ticket" });
     }
 
     const booking = await BookingModel.findById(decoded.booking_id);
     if (!booking) {
-      return res.status(404).json({ message: "Reservation not found" });
+      return res.status(404).json({ message: "Booking not found" });
+    }
+    
+    const event = await EventModel.findById(booking.event_id);
+    const isAdmin = req.user.role === Role.ADMIN;
+    const isOrganizer = event && Number(event.isOrganizer_id) === Number(req.user.id);
+
+    if(!isAdmin && !isOrganizer){
+      return res.status(403).json({message: 'You are not alowed to preform this action'});
     }
     if (booking.status !== "confirmed") {
       return res.status(400).json({ message: "Reservation not confirmed" });

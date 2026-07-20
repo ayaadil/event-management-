@@ -38,8 +38,9 @@ const Category = {
 //
   async remove(id) {
     const [events] = await pool.query('SELECT id FROM events WHERE category_id = ?', [id]);
-    if (events.length > 0) {const error = new Error('Cannot delete category: it has associated events');
-      error.status = 400;
+    if (events.length > 0) {
+      const error = new Error('Cannot delete category: it has associated events');
+      error.statusCode = 409;
       throw error;
     }
     const [deleteResult] = await pool.query('DELETE FROM categories WHERE id = ?', [id]);

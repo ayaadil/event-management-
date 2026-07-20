@@ -11,8 +11,16 @@ const createPayment = async (req, res, next) => {
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
-    if (booking.user_id !== req.user.id) {
-      return res.status(403).json({ message: 'You are not allowed to perform this action' });
+    if (Number(booking.user_id) !== Number(req.user.id)){
+      return res.status(403).json({message: 'You are not allowed to perform this action'});
+    }
+    if (booking.status !== 'pending'){
+      return res(400).json({message: `Booking is ${booking.status}; only pending bookings can paid for`,})
+    }
+
+    const existingPayment = await PaymentModel.findByBookingId(booking_id);
+    if(existingPayment) {
+      return res.status(409).json({message: 'A payment already exists for this booking'});
     }
 
     const paymentId = await PaymentModel.create({
