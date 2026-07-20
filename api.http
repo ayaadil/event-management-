@@ -199,6 +199,10 @@ Authorization: Bearer {{loginAdmin.response.body.token}}
 PUT  {{baseUrl}}/bookings/1/cancel
 Authorization: Bearer {{loginUser.response.body.token}}
 
+### Get booking by id (owner)
+GET {{baseUrl}}/bookings/1
+Authorization: Bearer {{loginUser.response.body.token}}
+
 ### QR code /chech-in
 
 ### Get QR code for a confirmed booking

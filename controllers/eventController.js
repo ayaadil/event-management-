@@ -53,9 +53,16 @@ exports.createEvent = async (req, res) => {
 // GET /events  (supports filters via query params)
 exports.getEvents = async (req, res) => {
   try {
-    const { category, location, status, from, to, search, page = 1, limit = 10 } = req.query;
+    const { category, location, status, from, to, search } = req.query;
 
-    const offset = (Number(page) - 1) * Number(limit);
+    let page = Number.parseInt(req.query.page, 10);
+    if (!Number.isInteger(page) || page < 1) page = 1;
+
+    let limit = Number.parseInt(req.query.limit, 10);
+    if (!Number.isInteger(limit) || limit < 1) limit = 10;
+    if (limit > 100) limit = 100;
+
+    const offset = (page - 1) * limit;
 
     const { rows, total } = await Event.findAll({
       category,
@@ -102,7 +109,7 @@ exports.updateEvent = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    const isOwner = event.organizer_id === req.user.id;
+    const isOwner = Number(event.organizer_id) === Number(req.user.id);
     const isAdmin = req.user.role === Role.ADMIN;
 
     if (!isOwner && !isAdmin) {
@@ -158,7 +165,7 @@ exports.deleteEvent = async (req, res) => {
       return res.status(404).json({ message: 'Event not found' });
     }
 
-    const isOwner = event.organizer_id === req.user.id;
+    const isOwner = Number(event.organizer_id) === Number(req.user.id);
     const isAdmin = req.user.role === Role.ADMIN;
 
     if (!isOwner && !isAdmin) {

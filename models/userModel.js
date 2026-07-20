@@ -35,13 +35,15 @@ const UserModel = {
   },
 
    async update(id, fields) {
-    const keys = Object.keys(fields);
+    const allowed = ['name', 'email', 'password', 'role'];
+    const keys = Object.keys(fields).filter((k) => allowed.includes(k) && fields[k] !== undefined);
     if (keys.length === 0) return false;
     const setClause = keys.map((k) => `${k} = ?`).join(', ');
     const values = keys.map((k) => fields[k]);
     await db.query(`UPDATE users SET ${setClause} WHERE id = ?`, [...values, id]);
     return true;
   },
+
 
   async softDelete(id) {
     await db.query(`UPDATE users SET deleted_at = NOW() WHERE id = ?`, [id]);

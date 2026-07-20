@@ -1,7 +1,7 @@
 const db = require("../config/db");
 const BookingModel = require("../models/bookingModel");
 const TicketTypeModel = require("../models/ticketTypeModel");
-const EventModel = ("../models/eventModel");
+const EventModel = require("../models/eventModel");
 const QRCode = require("qrcode");
 const jwt = require("jsonwebtoken");
 const Role = require('../constants/roles')
@@ -110,6 +110,27 @@ const getAllBookings = async (req, res, next) => {
   }
 };
 
+const getBookingById = async (req, res, next) => {
+  try {
+    const booking = await BookingModel.findByIdWithDetails(req.params.id);
+    if (!booking) {
+      return res.status(404).json({ message: "Booking not found" });
+    }
+
+    const isOwner = Number(booking.user_id) === Number(req.user.id);
+    const isAdmin = req.user.role === Role.ADMIN;
+    const isOrganizer = Number(booking.organizer_id) === Number(req.user.id);
+
+    if (!isOwner && !isAdmin && !isOrganizer) {
+      return res.status(403).json({ message: "You are not allowed to perform this action" });
+    }
+
+    res.json(booking);
+  } catch (err) {
+    next(err);
+  }
+};
+
 /**
  * cancel a booking (returns the quantity to inventory)
  * PUT /bookings/:id/cancel
@@ -179,7 +200,7 @@ const getBookingQRCode = async (req, res, next) => {
     const event = await EventModel.findById(booking.event_id);
     const isOwner = Number(booking.user_id) === Number(req.user.id);
     const isAdmin = req.user.role === Role.ADMIN;
-    const isOrganizer = event && Number(event.isOrganizer_id) === Number(req.user.id);
+    const isOrganizer = event && Number(event.Organizer_id) === Number(req.user.id);
 
     if(!isOwner && !isAdmin && !isOrganizer){
       return res.status(403).json({message: 'You are not alowed to preform this action'});
@@ -225,7 +246,7 @@ const verifyTicket = async (req, res, next) => {
     
     const event = await EventModel.findById(booking.event_id);
     const isAdmin = req.user.role === Role.ADMIN;
-    const isOrganizer = event && Number(event.isOrganizer_id) === Number(req.user.id);
+    const isOrganizer = event && Number(event.Organizer_id) === Number(req.user.id);
 
     if(!isAdmin && !isOrganizer){
       return res.status(403).json({message: 'You are not alowed to preform this action'});
@@ -254,6 +275,7 @@ module.exports = {
   createBooking,
   getMyBookings,
   getAllBookings,
+  getBookingById,
   cancelBooking,
   getBookingQRCode,
   verifyTicket,

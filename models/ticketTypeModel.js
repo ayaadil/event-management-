@@ -44,13 +44,14 @@ const TicketTypeModel = {
   },
   
   async update(id, fields) {
-    const keys = Object.keys(fields);
-    if (keys.length === 0) return false;
-    const setClause = keys.map((k) => `${k} = ?`).join(', ');
-    const values = keys.map((k) => fields[k]);
-    await db.query(`UPDATE ticket_types SET ${setClause} WHERE id = ?`, [...values, id]);
-    return true;
-  },
+  const allowed = ['ticket_name', 'price', 'capacity', 'available_tickets'];
+  const keys = Object.keys(fields).filter((k) => allowed.includes(k) && fields[k] !== undefined);
+  if (keys.length === 0) return false;
+  const setClause = keys.map((k) => `${k} = ?`).join(', ');
+  const values = keys.map((k) => fields[k]);
+  await db.query(`UPDATE ticket_types SET ${setClause} WHERE id = ?`, [...values, id]);
+  return true;
+},
 //
   async delete(id) {
     await db.query(`UPDATE ticket_types SET deleted_at = NOW() WHERE id = ?`, [id]);

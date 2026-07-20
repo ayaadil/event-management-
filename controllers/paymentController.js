@@ -15,7 +15,7 @@ const createPayment = async (req, res, next) => {
       return res.status(403).json({message: 'You are not allowed to perform this action'});
     }
     if (booking.status !== 'pending'){
-      return res(400).json({message: `Booking is ${booking.status}; only pending bookings can paid for`,})
+      return res.status(400).json({message: `Booking is ${booking.status}; only pending bookings can paid for`,})
     }
 
     const existingPayment = await PaymentModel.findByBookingId(booking_id);

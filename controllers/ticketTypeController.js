@@ -43,10 +43,13 @@ const updateTicketType = async (req, res, next) => {
       return res.status(404).json({ message: 'Ticket type not found' });
     }
     const event = await EventModel.findById(existingTicketType.event_id);
-    if (event.organizer_id !== req.user.id && req.user.role !== Role.ADMIN) {
-      return res.status(403).json({ message: 'You are not allowed to perform this action' });
-    }
-    await TicketTypeModel.update(req.params.id, req.body);
+if (!event) {
+  return res.status(404).json({ message: 'Parent event not found' });
+}
+if (Number(event.organizer_id) !== Number(req.user.id) && req.user.role !== Role.ADMIN) {
+  return res.status(403).json({ message: 'You are not allowed to perform this action' });
+}
+await TicketTypeModel.update(req.params.id, req.body);
     const ticketType = await TicketTypeModel.findById(req.params.id);
     res.json({ message: 'Ticket type updated successfully', ticketType });
   } catch (err) {
@@ -61,7 +64,10 @@ const deleteTicketType = async (req, res, next) => {
       return res.status(404).json({ message: 'Ticket type not found' });
     }
     const event = await EventModel.findById(existingTicketType.event_id);
-    if (event.organizer_id !== req.user.id && req.user.role !== Role.ADMIN) {
+    if (!event) {
+      return res.status(404).json({ message: 'Parent event not found' });
+    }
+    if (Number(event.organizer_id) !== Number(req.user.id) && req.user.role !== Role.ADMIN) {
       return res.status(403).json({ message: 'You are not allowed to perform this action' });
     }
     await TicketTypeModel.delete(req.params.id);

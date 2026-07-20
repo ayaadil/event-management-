@@ -46,6 +46,18 @@ const BookingModel = {
     return rows[0];
   },
 
+  async findByIdWithDetails(id) {
+  const [rows] = await db.query(
+    `SELECT b.*, tt.ticket_name, tt.price, e.title AS event_title, e.organizer_id
+     FROM bookings b
+     JOIN ticket_types tt ON b.ticket_type_id = tt.id
+     JOIN events e ON tt.event_id = e.id
+     WHERE b.id = ?`,
+    [id]
+  );
+  return rows[0];
+},
+
   async updateStatus(id, status, connection = db) {
     await connection.query(`UPDATE bookings SET status = ? WHERE id = ?`, [status, id]);
     return true;
