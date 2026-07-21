@@ -45,8 +45,8 @@ const getPaymentByBooking = async (req, res, next) => {
     if (!booking) {
       return res.status(404).json({ message: 'Booking not found' });
     }
-    if (booking.user_id !== req.user.id && req.user.role !== Role.ADMIN) {
-      return res.status(403).json({ message: 'You are not allowed to perform this action' });
+    if (Number(booking.user_id) !== Number(req.user.id) && req.user.role !== Role.ADMIN) {
+     return res.status(403).json({ message: 'You are not allowed to perform this action' });
     }
     const payment = await PaymentModel.findByBookingId(req.params.bookingId);
     if (!payment) {

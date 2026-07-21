@@ -15,7 +15,7 @@ const createTicketType = async (req, res, next) => {
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
-    if (event.organizer_id !== req.user.id && req.user.role !== 'admin') {
+    if (Number(event.organizer_id) !== Number(req.user.id) && req.user.role !== Role.ADMIN) {
       return res.status(403).json({ message: 'You are not allowed to perform this action' });
     }
 

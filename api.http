@@ -116,10 +116,10 @@ Authorization: Bearer {{loginAdmin.response.body.token}}
   "description": "Annual tech conference",
   "image_url": "https://example.com/event.jpg",
   "date_time": "2026-09-15T10:00:00",
-  "location": "Amman, Jordan",
+  "location": "Duhok",
   "latitude": 31.9539,
   "longitude": 35.9106,
-  "category_id": 2,
+  "category_id": 4,
   "status": "published"
 }
 
@@ -134,7 +134,7 @@ Authorization: Bearer {{loginAdmin.response.body.token}}
 }
 
 ### Delete event
-DELETE {{baseUrl}}/events/2
+DELETE {{baseUrl}}/events/3
 Authorization: Bearer {{loginAdmin.response.body.token}}
 
 #########
@@ -158,7 +158,7 @@ GET {{baseUrl}}/ticket-types/event/1
 Authorization: Bearer {{loginUser.response.body.token}}
 
 ### Update ticket type(organizer/admin only)
-PUT {{baseUrl}}/ticket-types/1
+PUT {{baseUrl}}/ticket-types/2
 Content-Type: application/json
 Authorization: Bearer {{loginAdmin.response.body.token}}
 
@@ -206,7 +206,7 @@ Authorization: Bearer {{loginUser.response.body.token}}
 ### QR code /chech-in
 
 ### Get QR code for a confirmed booking
-GET {{baseUrl}}/bookings/1/qrcode
+GET {{baseUrl}}/bookings/2/qrcode
 Authorization: Bearer {{loginUser.response.body.token}}
 
 ### Verify ticket and register attendance (admin/staff only)

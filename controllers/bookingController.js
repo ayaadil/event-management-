@@ -200,7 +200,7 @@ const getBookingQRCode = async (req, res, next) => {
     const event = await EventModel.findById(booking.event_id);
     const isOwner = Number(booking.user_id) === Number(req.user.id);
     const isAdmin = req.user.role === Role.ADMIN;
-    const isOrganizer = event && Number(event.Organizer_id) === Number(req.user.id);
+    const isOrganizer = event && Number(event.organizer_id) === Number(req.user.id);
 
     if(!isOwner && !isAdmin && !isOrganizer){
       return res.status(403).json({message: 'You are not alowed to preform this action'});
@@ -246,7 +246,7 @@ const verifyTicket = async (req, res, next) => {
     
     const event = await EventModel.findById(booking.event_id);
     const isAdmin = req.user.role === Role.ADMIN;
-    const isOrganizer = event && Number(event.Organizer_id) === Number(req.user.id);
+    const isOrganizer = event && Number(event.organizer_id) === Number(req.user.id);
 
     if(!isAdmin && !isOrganizer){
       return res.status(403).json({message: 'You are not alowed to preform this action'});
