@@ -196,7 +196,7 @@ GET {{baseUrl}}/bookings
 Authorization: Bearer {{loginAdmin.response.body.token}}
 
 ### cancel booking
-PUT  {{baseUrl}}/bookings/1/cancel
+PUT  {{baseUrl}}/bookings/4/cancel
 Authorization: Bearer {{loginUser.response.body.token}}
 
 ### Get booking by id (owner)
@@ -206,8 +206,8 @@ Authorization: Bearer {{loginUser.response.body.token}}
 ### QR code /chech-in
 
 ### Get QR code for a confirmed booking
-GET {{baseUrl}}/bookings/2/qrcode
-Authorization: Bearer {{loginUser.response.body.token}}
+GET {{baseUrl}}/bookings/5/qrcode
+Authorization: Bearer {{loginAdmin.response.body.token}}
 
 ### Verify ticket and register attendance (admin/staff only)
 POST {{baseUrl}}/bookings/verify
@@ -219,12 +219,12 @@ Content-Type: application/json
 }
 
 ### Try getting QR for booking thet is not confirmed yet(should return 400)
-GET {{baseUrl}}/bookings/2/qrcode
+GET {{baseUrl}}/bookings/4/qrcode
 Authorization: Bearer {{loginUser.response.body.token}}
 
 ### Try getting QR for someone else booking(should return 403)
-GET {{baseUrl}}/bookings/1/qrcode
-Authorization: Bearer {{loginAdmin.response.body.token}}
+GET {{baseUrl}}/bookings/3/qrcode
+Authorization: Bearer {{loginUser.response.body.token}}
 
 #########
 #payment
@@ -237,7 +237,7 @@ Authorization: Bearer {{loginUser.response.body.token}}
 Content-Type: application/json
 
 {
-  "booking_id": 1,
+  "booking_id": 5,
   "amount": 100.00,
   "payment_method": "credit_card"
 }
@@ -247,7 +247,7 @@ GET {{baseUrl}}/bookings/my
 Authorization: Bearer {{loginUser.response.body.token}}
 
 ### get payment by booking id
-GET {{baseUrl}}/payments/booking/1
+GET {{baseUrl}}/payments/booking/5
 Authorization: Bearer {{loginUser.response.body.token}}
 
 

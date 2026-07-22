@@ -10,7 +10,7 @@ const PaymentModel = {
       throw error;
     }
     const [result] = await db.query(
-      `INSERT INTO payments (booking_id, amount, payment_method, status, transaction_ref)
+      `INSERT INTO payments (booking_id, amount, method, status, transaction_ref)
        VALUES (?, ?, ?, ?, ?)`,
       [booking_id, amount, payment_method, status, transaction_ref]
     );
@@ -28,7 +28,8 @@ const PaymentModel = {
       error.statusCode = 400;
       throw error;
     }
-    await db.query(`UPDATE payments SET status = ? WHERE id = ?`, [status, id]);
+    const paid_at = status === 'paid'? new Date() : null;
+    await db.query(`UPDATE payments SET status = ?, paid_at =? WHERE id = ?`, [status,paid_at, id]);
     return true;
   },
 };
