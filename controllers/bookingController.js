@@ -168,11 +168,12 @@ const cancelBooking = async (req, res, next) => {
     await BookingModel.updateStatus(booking.id, "cancelled", connection);
 
     // returning the quantity to inventory
-    await connection.query(
-      "UPDATE ticket_types SET available_tickets = available_tickets + ? WHERE id = ?",
-      [booking.quantity, booking.ticket_type_id]
-    );
-
+   await connection.query(
+  `UPDATE ticket_types
+   SET available_tickets = LEAST(capacity, available_tickets + ?)
+   WHERE id = ?`,
+  [booking.quantity, booking.ticket_type_id]
+);
     await connection.commit();
     connection.release();
 
