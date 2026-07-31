@@ -1,7 +1,7 @@
+// controllers/userController.js
 const bcrypt = require('bcrypt');
 const UserModel = require('../models/userModel');
 const Role = require('../constants/roles');
-const { json } = require('express');
 
 const getUsers = async (req, res, next) => {
   try{
@@ -23,6 +23,7 @@ const getUsersById = async(req, res, next) => {
         next(err);
     }
 };
+
 const updateMe = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
@@ -42,14 +43,12 @@ const updateMe = async (req, res, next) => {
       fields.password = await bcrypt.hash(password, 10);
     }
 
-
-if (role) {
-    if (role !== Role.ORGANIZER_PENDING) {
+    if (role) {
+      if (role !== Role.ORGANIZER_PENDING) {
         return res.status(400).json({
-            message: "You cannot change your role.",
+          message: "You cannot change your role.",
         });
-    }
-
+      }
 
       fields.role = Role.ORGANIZER_PENDING;
     }
@@ -79,17 +78,34 @@ const updateUser = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ message: 'The User not found.' });
     }
-    const {name, email, password, role} = req.body;
+
+    // منع الأدمن من تغيير دوره الخاص عبر هذا المسار (حماية حقيقية على مستوى الـ API)
+    if (String(req.params.id) === String(req.user.id) && req.body.role) {
+      return res.status(403).json({ message: 'You cannot change your own role.' });
+    }
+
+    const { name, email, password, role } = req.body;
     const fields = {};
+
     if (name) fields.name = name;
-    if (email) fields.email = email;
+
+    if (email) {
+      const existing = await UserModel.findByEmail(email);
+      if (existing && existing.id !== user.id) {
+        return res.status(409).json({ message: 'Email is already in use' });
+      }
+      fields.email = email;
+    }
+
     if (password) fields.password = await bcrypt.hash(password, 10);
+
     if (role) {
-      if(!Object.values(Role).includes(role)) {
+      if (!Object.values(Role).includes(role)) {
         return res.status(400).json({ message: 'Invalid role value.' });
       }
       fields.role = role;
     }
+
     if (Object.keys(fields).length === 0) {
       return res.status(400).json({ message: 'There is no data to update.' });
     }
@@ -108,6 +124,12 @@ const deleteUser = async (req, res, next) => {
     if (!user) {
       return res.status(404).json({ message: 'The User not found.' });
     }
+
+    // منع الأدمن من حذف حسابه بنفسه عبر هذا المسار
+    if (String(req.params.id) === String(req.user.id)) {
+      return res.status(403).json({ message: 'You cannot delete your own account.' });
+    }
+
     await UserModel.softDelete(req.params.id);
     res.json({ message: 'The user has been deleted.' });
   } catch (err) {

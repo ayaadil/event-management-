@@ -16,13 +16,21 @@ const storage = multer.diskStorage({
   },
 });
 
-const ALLOWED_TYPES = ['image/png', 'image/jpeg', 'image/jpg', 'image/gif', 'image/webp'];
+const ALLOWED_TYPES = [
+  'image/png',
+  'image/jpeg',
+  'image/jpg',
+  'image/gif',
+  'image/webp',
+  'image/heic',   // صور آيفون (تتحول تلقائياً لـ JPEG بالسيرفر)
+  'image/heif',   // صور آيفون (تتحول تلقائياً لـ JPEG بالسيرفر)
+];
 
 const fileFilter = (req, file, cb) => {
   if (ALLOWED_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new Error('Only PNG, JPG, GIF, or WEBP images are allowed'));
+    cb(new Error('Only PNG, JPG, GIF, WEBP, or HEIC images are allowed'));
   }
 };
 
