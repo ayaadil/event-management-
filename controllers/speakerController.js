@@ -1,5 +1,7 @@
 const SpeakerModel = require('../models/speakerModel');
 const EventModel = require('../models/eventModel');
+const Role = require('../constants/roles');
+
 const getSpeakers = async (req, res, next) => {
   try {
     const speakers = await SpeakerModel.findAll();
@@ -22,6 +24,36 @@ const createSpeaker = async (req, res, next) => {
   }
 };
 
+const updateSpeaker = async (req, res, next) => {
+  try {
+    const speaker = await SpeakerModel.findById(req.params.id);
+    if (!speaker) {
+      return res.status(404).json({ message: 'Speaker not found' });
+    }
+    const { name, role, company, image_url } = req.body;
+    if (name !== undefined && !name.trim()) {
+      return res.status(400).json({ message: 'The speaker name is required' });
+    }
+    await SpeakerModel.update(req.params.id, { name, role, company, image_url });
+    res.json({ message: 'The speaker has been updated' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const deleteSpeaker = async (req, res, next) => {
+  try {
+    const speaker = await SpeakerModel.findById(req.params.id);
+    if (!speaker) {
+      return res.status(404).json({ message: 'Speaker not found' });
+    }
+    await SpeakerModel.delete(req.params.id);
+    res.json({ message: 'The speaker has been deleted' });
+  } catch (err) {
+    next(err);
+  }
+};
+
 const linkSpeakerToEvent = async (req, res, next) => {
   try {
     const { event_id, speaker_id } = req.body;
@@ -29,12 +61,36 @@ const linkSpeakerToEvent = async (req, res, next) => {
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
+
+    if (Number(event.organizer_id) !== Number(req.user.id) && req.user.role !== Role.ADMIN) {
+      return res.status(403).json({ message: 'You are not allowed to perform this action' });
+    }
+
     const speaker = await SpeakerModel.findById(speaker_id);
     if (!speaker) {
       return res.status(404).json({ message: 'Speaker not found' });
     }
     await SpeakerModel.linkToEvent(event_id, speaker_id);
     res.status(201).json({ message: 'The speaker has been linked to the event' });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const unlinkSpeakerFromEvent = async (req, res, next) => {
+  try {
+    const { event_id, speaker_id } = req.body;
+    const event = await EventModel.findById(event_id);
+    if (!event) {
+      return res.status(404).json({ message: 'Event not found' });
+    }
+
+    if (Number(event.organizer_id) !== Number(req.user.id) && req.user.role !== Role.ADMIN) {
+      return res.status(403).json({ message: 'You are not allowed to perform this action' });
+    }
+
+    await SpeakerModel.unlinkFromEvent(event_id, speaker_id);
+    res.json({ message: 'The speaker has been removed from the event' });
   } catch (err) {
     next(err);
   }
@@ -49,4 +105,12 @@ const getSpeakersByEvent = async (req, res, next) => {
   }
 };
 
-module.exports = { getSpeakers, createSpeaker, linkSpeakerToEvent, getSpeakersByEvent };
+module.exports = {
+  getSpeakers,
+  createSpeaker,
+  updateSpeaker,
+  deleteSpeaker,
+  linkSpeakerToEvent,
+  unlinkSpeakerFromEvent,
+  getSpeakersByEvent,
+};
