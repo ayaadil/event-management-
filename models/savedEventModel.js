@@ -21,7 +21,7 @@ const SavedEventModel = {
     const [rows] = await db.query(
       `SELECT e.* FROM saved_events se
        JOIN events e ON se.event_id = e.id
-       WHERE se.user_id = ?`,
+       WHERE se.user_id = ? AND e.deleted_at IS NULL AND e.status = 'published'`,
       [user_id]
     );
     return rows;

@@ -49,13 +49,19 @@ const Event = {
     const conditions = ['e.deleted_at IS NULL'];
     const params = [];
 
-    // تطبيق شرط الوقت فقط إذا تم اختيار upcoming أو past حصراً
+    // "upcoming" و "past" كلمتان خاصتان لفلترة حسب الوقت (وليس حسب حالة الفعالية)
     if (status === 'upcoming') {
       conditions.push('e.date_time >= NOW()');
     } else if (status === 'past') {
       conditions.push('e.date_time < NOW()');
+    } else if (status && status !== 'all') {
+      // أي قيمة أخرى (draft / published / cancelled / completed) تُطبَّق كفلتر حقيقي على عمود status
+      // *** هذا هو التصحيح: قبل هذا التعديل كانت أي قيمة غير upcoming/past يتم تجاهلها بالكامل،
+      // مما يعني أن GET /events?status=published كان يرجّع كل الفعاليات (حتى draft/cancelled) ***
+      conditions.push('e.status = ?');
+      params.push(status);
     }
-    // إذا كانت status تساوي 'all' أو غير موجودة، يتم تجاهل شرط التاريخ وتظهر كل الفعاليات
+    // إذا كانت status تساوي 'all' أو غير موجودة، يتم تجاهل الفلتر وتظهر كل الفعاليات
 
     // فلترة حسب التصنيف
     if (category) {

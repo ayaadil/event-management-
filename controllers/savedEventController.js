@@ -7,6 +7,9 @@ const saveEvent = async (req, res, next) => {
     if (!event) {
       return res.status(404).json({ message: 'Event not found' });
     }
+    if (event.status !== 'published') {
+      return res.status(400).json({ message: 'Only published events can be saved' });
+    }
     await SavedEventModel.add(req.user.id, req.params.eventId);
     res.status(201).json({ message: 'Event saved successfully' });
   } catch (err) {
